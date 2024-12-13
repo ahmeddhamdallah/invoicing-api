@@ -17,14 +17,12 @@ class TokenGuardTest extends TestCase
     {
         parent::setUp();
         
-        // Create a fresh request for each test
         $this->request = new Request();
         $this->guard = new TokenGuard($this->request);
     }
 
     public function testValidateToken()
     {
-        // Arrange
         $customer = Customer::factory()->create();
         $token = ApiToken::factory()->create([
             'customer_id' => $customer->id,
@@ -34,10 +32,8 @@ class TokenGuardTest extends TestCase
 
         $this->request->headers->set('Authorization', 'Bearer valid_token');
 
-        // Act
         $isValid = $this->guard->validate(['api_token' => 'valid_token']);
 
-        // Assert
         $this->assertTrue($isValid);
         $this->assertDatabaseHas('api_tokens', [
             'id' => $token->id,
@@ -48,32 +44,26 @@ class TokenGuardTest extends TestCase
 
     public function testInvalidateToken()
     {
-        // Arrange
         $this->request->headers->set('Authorization', 'Bearer invalid_token');
 
-        // Act
         $isValid = $this->guard->validate(['api_token' => 'invalid_token']);
 
-        // Assert
         $this->assertFalse($isValid);
     }
 
     public function testExpiredTokenIsInvalid()
     {
-        // Arrange
         $customer = Customer::factory()->create();
         $token = ApiToken::factory()->create([
             'customer_id' => $customer->id,
             'token' => 'expired_token',
-            'expires_at' => now()->subDay() // Token expired yesterday
+            'expires_at' => now()->subDay() 
         ]);
 
         $this->request->headers->set('Authorization', 'Bearer expired_token');
 
-        // Act
         $isValid = $this->guard->validate(['api_token' => 'expired_token']);
 
-        // Assert
         $this->assertFalse($isValid);
     }
 } 

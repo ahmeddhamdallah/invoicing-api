@@ -13,20 +13,17 @@ class TestDataSeeder extends Seeder
 {
     public function run()
     {
-        // Create test customer
         $customer = Customer::create([
             'name' => 'Example Corp',
             'email' => 'billing@example.com'
         ]);
 
-        // Create API token
         $token = ApiToken::create([
             'customer_id' => $customer->id,
             'name' => 'Test Token',
             'token' => Str::random(60)
         ]);
 
-        // User A - Registration before period, activations in period
         $userA = User::create([
             'customer_id' => $customer->id,
             'name' => 'User A',
@@ -34,7 +31,6 @@ class TestDataSeeder extends Seeder
             'registered_at' => '2020-12-01 10:00:00'
         ]);
 
-        // User A's activations in period
         UserSession::create([
             'user_id' => $userA->id,
             'activated_at' => '2021-01-15 10:00:00',
@@ -47,7 +43,6 @@ class TestDataSeeder extends Seeder
             'appointment_at' => null
         ]);
 
-        // User B - Registration before period, appointment in period
         $userB = User::create([
             'customer_id' => $customer->id,
             'name' => 'User B',
@@ -55,14 +50,12 @@ class TestDataSeeder extends Seeder
             'registered_at' => '2020-12-15 10:00:00'
         ]);
 
-        // User B's appointment in period
         UserSession::create([
             'user_id' => $userB->id,
             'activated_at' => null,
             'appointment_at' => '2021-01-15 10:00:00'
         ]);
 
-        // User C - Registration and activation in period
         $userC = User::create([
             'customer_id' => $customer->id,
             'name' => 'User C',
@@ -70,14 +63,12 @@ class TestDataSeeder extends Seeder
             'registered_at' => '2021-01-01 10:00:00'
         ]);
 
-        // User C's activation in period
         UserSession::create([
             'user_id' => $userC->id,
             'activated_at' => '2021-01-10 10:00:00',
             'appointment_at' => null
         ]);
 
-        // User D - All events before period
         $userD = User::create([
             'customer_id' => $customer->id,
             'name' => 'User D',
@@ -85,7 +76,6 @@ class TestDataSeeder extends Seeder
             'registered_at' => '2020-09-01 10:00:00'
         ]);
 
-        // User D's events before period
         UserSession::create([
             'user_id' => $userD->id,
             'activated_at' => '2020-10-11 10:00:00',
