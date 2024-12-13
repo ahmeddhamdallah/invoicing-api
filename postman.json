@@ -1,0 +1,50 @@
+{
+    "info": {
+        "name": "Invoicing API",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Create Invoice",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "http://localhost:8003/api/v1/invoices",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8003",
+                    "path": ["api", "v1", "invoices"]
+                },
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n    \"customer_id\": 3,\n    \"start_date\": \"2024-01-01\",\n    \"end_date\": \"2024-01-31\"\n}"
+                }
+            }
+        },
+        {
+            "name": "Get Invoice Details",
+            "request": {
+                "method": "GET",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "url": {
+                    "raw": "http://localhost:8003/api/v1/invoices/1",
+                    "protocol": "http",
+                    "host": ["localhost"],
+                    "port": "8003",
+                    "path": ["api", "v1", "invoices", "1"]
+                }
+            }
+        }
+    ]
+}
