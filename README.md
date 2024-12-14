@@ -9,6 +9,7 @@ erDiagram
     customers ||--o{ users : has
     customers ||--o{ invoices : has
     users ||--o{ invoice_events : generates
+    users ||--o{ user_sessions : has
     invoices ||--o{ invoice_events : contains
     api_tokens ||--|| customers : belongs_to
     jobs ||..|| invoices : processes
@@ -29,6 +30,15 @@ erDiagram
         created_at timestamp "registration_date"
         activated_at timestamp
         appointment_at timestamp
+        updated_at timestamp
+    }
+
+    user_sessions {
+        id bigint PK
+        user_id bigint FK
+        activated_at timestamp
+        appointment_at timestamp
+        created_at timestamp
         updated_at timestamp
     }
 
@@ -84,35 +94,57 @@ erDiagram
 2. **Users**
    - Belongs-to Customer
    - One-to-Many with InvoiceEvents
+   - One-to-Many with UserSessions
    - Stores user events (registration, activation, appointment)
 
-3. **Invoices**
+3. **UserSessions**
+   - Belongs-to User
+   - Tracks individual activation and appointment sessions
+   - Maintains history of user activities
+   - Allows multiple sessions per user
+
+4. **Invoices**
    - Belongs-to Customer
    - One-to-Many with InvoiceEvents
    - Contains billing period and total amount
 
-4. **InvoiceEvents**
+5. **InvoiceEvents**
    - Belongs-to Invoice
    - Belongs-to User
    - Records individual billable events
 
-5. **ApiTokens**
+6. **ApiTokens**
    - Belongs-to Customer
    - Handles authentication
    - One token per customer
 
-6. **Jobs**
+7. **Jobs**
    - Queue table for async operations
    - Handles email notifications
    - Processes background tasks
 
 ### Key Features
 
-- **Event Tracking**: User table timestamps track registration, activation, and appointment dates
-- **Billing Logic**: Invoice events store individual charges with their types and amounts
-- **Metrics Storage**: Invoices store metrics in JSON format for flexibility
-- **Queue System**: Jobs table manages asynchronous tasks like email notifications
-- **Security**: API tokens provide secure authentication per customer
+- **Event Tracking**: 
+  - User table timestamps track initial registration
+  - UserSessions track multiple activations and appointments
+  - Detailed session history per user
+- **Billing Logic**: 
+  - Invoice events store individual charges with their types and amounts
+  - Considers all sessions within billing period
+  - Charges highest-priced event per user
+- **Metrics Storage**: 
+  - Invoices store metrics in JSON format for flexibility
+  - Tracks total, active, and registered users
+  - Maintains appointment statistics
+- **Queue System**: 
+  - Jobs table manages asynchronous tasks
+  - Handles email notifications
+  - Ensures reliable background processing
+- **Security**: 
+  - API tokens provide secure authentication per customer
+  - Session-based activity tracking
+  - Proper data relationships and constraints
 
 ## Features
 
@@ -126,9 +158,13 @@ erDiagram
   - Only charges events within the specified date range
   - Handles multiple events per user correctly
 - User event tracking:
-  - Registration dates
-  - Activation dates
-  - Appointment dates
+  - Registration dates (one-time)
+  - Multiple activation sessions
+  - Multiple appointment sessions
+- Session management:
+  - Track multiple activations per user
+  - Track multiple appointments per user
+  - Historical session data
 - Comprehensive metrics:
   - Total users
   - Active users
