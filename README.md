@@ -2,6 +2,118 @@
 
 A Laravel-based REST API for managing customer invoices based on user events. The system calculates charges based on the most expensive event per user within a billing period.
 
+## Database Diagram
+
+```mermaid
+erDiagram
+    customers ||--o{ users : has
+    customers ||--o{ invoices : has
+    users ||--o{ invoice_events : generates
+    invoices ||--o{ invoice_events : contains
+    api_tokens ||--|| customers : belongs_to
+    jobs ||..|| invoices : processes
+
+    customers {
+        id bigint PK
+        name string
+        email string
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    users {
+        id bigint PK
+        customer_id bigint FK
+        name string
+        email string
+        created_at timestamp "registration_date"
+        activated_at timestamp
+        appointment_at timestamp
+        updated_at timestamp
+    }
+
+    invoices {
+        id bigint PK
+        customer_id bigint FK
+        start_date timestamp
+        end_date timestamp
+        total_amount decimal
+        metrics json
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    invoice_events {
+        id bigint PK
+        invoice_id bigint FK
+        user_id bigint FK
+        type enum "registration, activation, appointment"
+        date timestamp
+        price decimal
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    api_tokens {
+        id bigint PK
+        customer_id bigint FK
+        token string
+        created_at timestamp
+        updated_at timestamp
+    }
+
+    jobs {
+        id bigint PK
+        queue string
+        payload longtext
+        attempts tinyint
+        reserved_at integer
+        available_at integer
+        created_at integer
+    }
+```
+
+### Table Relationships
+
+1. **Customers**
+   - One-to-Many with Users
+   - One-to-Many with Invoices
+   - One-to-One with ApiToken
+   - Primary entity storing customer information
+
+2. **Users**
+   - Belongs-to Customer
+   - One-to-Many with InvoiceEvents
+   - Stores user events (registration, activation, appointment)
+
+3. **Invoices**
+   - Belongs-to Customer
+   - One-to-Many with InvoiceEvents
+   - Contains billing period and total amount
+
+4. **InvoiceEvents**
+   - Belongs-to Invoice
+   - Belongs-to User
+   - Records individual billable events
+
+5. **ApiTokens**
+   - Belongs-to Customer
+   - Handles authentication
+   - One token per customer
+
+6. **Jobs**
+   - Queue table for async operations
+   - Handles email notifications
+   - Processes background tasks
+
+### Key Features
+
+- **Event Tracking**: User table timestamps track registration, activation, and appointment dates
+- **Billing Logic**: Invoice events store individual charges with their types and amounts
+- **Metrics Storage**: Invoices store metrics in JSON format for flexibility
+- **Queue System**: Jobs table manages asynchronous tasks like email notifications
+- **Security**: API tokens provide secure authentication per customer
+
 ## Features
 
 - Create invoices for customers based on user events
@@ -24,6 +136,8 @@ A Laravel-based REST API for managing customer invoices based on user events. Th
   - Appointment users
 - Token-based authentication
 - Detailed invoice reporting
+- Email notifications for generated invoices
+- Queue system for handling notifications
 
 ## Event Pricing
 
@@ -152,9 +266,31 @@ DB_USERNAME=your_username
 DB_PASSWORD=your_password
 ```
 
-5. Run migrations and seed test data:
+5. Configure mail settings in `.env`:
+```
+MAIL_MAILER=smtp
+MAIL_HOST=your_smtp_host
+MAIL_PORT=587
+MAIL_USERNAME=your_username
+MAIL_PASSWORD=your_password
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=your_from_address
+MAIL_FROM_NAME="${APP_NAME}"
+```
+
+6. Configure queue in `.env`:
+```
+QUEUE_CONNECTION=database
+```
+
+7. Run migrations and seed test data:
 ```bash
 php artisan migrate:fresh --seed --seeder=TestDataSeeder
+```
+
+8. Start the queue worker:
+```bash
+php artisan queue:work
 ```
 
 The seeder will:
@@ -162,6 +298,28 @@ The seeder will:
 - Create test users with various scenarios
 - Generate and display your API token
 - Show test scenarios and expected charges
+
+## Email Notifications
+
+The system automatically sends email notifications when:
+- A new invoice is generated
+- The notification includes:
+  - Invoice period
+  - Total amount
+  - Link to view invoice details
+- Notifications are queued for better performance
+
+## Queue System
+
+The application uses Laravel's queue system to handle:
+- Email notifications
+- Background job processing
+- Improved performance for long-running tasks
+
+To ensure notifications are sent:
+1. Make sure the queue worker is running
+2. Monitor the jobs table for failed jobs
+3. Set up supervisor for production environments
 
 ## Testing
 
