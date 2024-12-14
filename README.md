@@ -229,24 +229,77 @@ Authorization: Bearer your-api-token
             "date": "2024-01-15T10:00:00.000000Z",
             "price": "100.00",
             "user_id": 1
+        },
+        {
+            "type": "activation",
+            "date": "2024-01-20T14:30:00.000000Z",
+            "price": "50.00",
+            "user_id": 1
+        },
+        {
+            "type": "appointment",
+            "date": "2024-01-25T09:15:00.000000Z",
+            "price": "200.00",
+            "user_id": 1
         }
     ],
     "event_frequency": {
         "registration": 1,
-        "activation": 0,
-        "appointment": 0
+        "activation": 1,
+        "appointment": 1
     },
     "price_per_event": {
         "registration": 100,
         "activation": 50,
         "appointment": 200
     },
-    "total_amount": "100.00",
+    "total_amount": "200.00",
+    "user_details": [
+        {
+            "user_id": 1,
+            "email": "user@example.com",
+            "name": "John Doe",
+            "events": [
+                {
+                    "type": "registration",
+                    "date": "2024-01-15T10:00:00.000000Z",
+                    "price": "100.00"
+                },
+                {
+                    "type": "activation",
+                    "date": "2024-01-20T14:30:00.000000Z",
+                    "price": "50.00"
+                },
+                {
+                    "type": "appointment",
+                    "date": "2024-01-25T09:15:00.000000Z",
+                    "price": "200.00"
+                }
+            ],
+            "sessions": [
+                {
+                    "id": 1,
+                    "activation_date": "2024-01-20T14:30:00.000000Z",
+                    "appointment_date": null
+                },
+                {
+                    "id": 2,
+                    "activation_date": "2024-01-22T16:45:00.000000Z",
+                    "appointment_date": null
+                },
+                {
+                    "id": 3,
+                    "activation_date": null,
+                    "appointment_date": "2024-01-25T09:15:00.000000Z"
+                }
+            ]
+        }
+    ],
     "user_metrics": {
         "total_users": 1,
-        "active_users": 0,
+        "active_users": 1,
         "registered_users": 1,
-        "appointment_users": 0
+        "appointment_users": 1
     }
 }
 ```
